@@ -1,0 +1,1 @@
+/vidly.com/api/customers
