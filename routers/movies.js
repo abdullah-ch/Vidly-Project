@@ -2,6 +2,8 @@ const express = require("express");
 const { Genres } = require("../models/genres");
 const { Movies } = require("../models/movies");
 const { movieValidation } = require("../models/movies");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
 
 
 const router = express.Router();
@@ -42,7 +44,7 @@ router.get("/:id", async (req, res) => {
   return res.send(result);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const result = movieValidation(req.body);
   if (result.error)
     return res.status(400).send(result.error.details[0].message);
@@ -66,7 +68,7 @@ router.post("/", async (req, res) => {
   return res.send(movie);
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const result = movieValidation(req.body);
   if (result.error)
     return res.status(400).send(result.error.details[0].message);
@@ -95,7 +97,7 @@ router.put("/:id", async (req, res) => {
   return res.send(movie);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth,admin], async (req, res) => {
     const movie = await Movies.deleteOne({_id : req.params.id})
 
     if (!movie)  return res.status(404).send("Movie Not Found, please check the ID");

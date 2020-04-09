@@ -7,6 +7,13 @@ const customers = require("./routers/customers");
 const movies = require("./routers/movies");
 const rentals = require("./routers/rentals");
 const registrations = require("./routers/registrations");
+const login = require("./routers/login");
+const config = require("config");
+
+if (!config.get("jwtPrivateKey")) {
+  console.error("FATAL ERROR: jwtPrivateKey is not defined");
+  process.exit(1);
+}
 
 mongoose
   .connect("mongodb://localhost:27017/genres-vidly", {
@@ -24,6 +31,8 @@ app.use("/vidly.com/api/customers", customers);
 app.use("/vidly.com/api/movies", movies);
 app.use("/vidly.com/api/rentals", rentals);
 app.use("/vidly.com/api/registrations", registrations);
+app.use("/vidly.com/api/login", login);
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

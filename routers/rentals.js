@@ -4,7 +4,9 @@ const { rentalValidation } = require("../models/rentals");
 const { Customers } = require("../models/customers");
 const { Movies } = require("../models/movies");
 const Fawn = require("fawn");
+const auth = require("../middleware/auth");
 const mongoose = require("mongoose");
+const admin = require("../middleware/admin");
 const router = express.Router();
 
 Fawn.init(mongoose);
@@ -40,13 +42,14 @@ router.get("/", async (req, res) => {
   return res.send(rental);
 });
 
-router.post("/", async (req, res) => {
-  console.log(req.body);
+router.post("/", auth, async (req, res) => {
+
+  console.log("Data I am sending in rentals",req.body);
   const result = rentalValidation(req.body);
   if (result.error)
     return res
       .status(404)
-      .send("Check your IDS, they should be of only string type");
+      .send(result.error.details[0].message);
 
   const customer = await Customers.findById(req.body.customerId);
   if (!customer) return res.status(400).send("There is no customer of such ID");
@@ -71,17 +74,24 @@ router.post("/", async (req, res) => {
       dailyRentalRate: movie.dailyRentalRate,
     },
   });
-   
-    try {
-        console.log("Rental isssssssss");
-        console.log(Fawn);
-    new Fawn.Task()  .save("rentals", rental)  .update("movies", { _id: movie._id },{
-          $inc: { numberInStock: -1 },
-        }).run();
-      console.log("Rental isssssssss2");
-      console.log(rental);
 
-   return res.send(rental);
+  try {
+    console.log("Rental isssssssss");
+    console.log(Fawn);
+    new Fawn.Task()
+      .save("rentals", rental)
+      .update(
+        "movies",
+        { _id: movie._id },
+        {
+          $inc: { numberInStock: -1 },
+        }
+      )
+      .run();
+    console.log("Rental isssssssss2");
+    console.log(rental);
+
+    return res.send(rental);
   } catch (ex) {
     return res.status(500).send("Something Failed");
   }
