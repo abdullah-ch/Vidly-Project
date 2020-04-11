@@ -5,37 +5,6 @@ const admin = require("../middleware/admin");
 
 const router = express.Router();
 
-// Creating customers by creating instance of the customers Class
-
-async function createCustomers() {
-  const customer = new Customers({
-    customerName: "Bilal",
-    isGold: true,
-    phone: "0323-8950333",
-  });
-  try {
-    const result = await customer.save();
-    console.log(result);
-  } catch (err) {
-    console.log("Can't add Customers", err.message);
-  }
-}
-
-//createCustomers();
-
-// Displaying All Courses in the Database
-
-async function displayCustomers() {
-  try {
-    const result = await Customers.find();
-    console.log(result);
-  } catch (err) {
-    console.log("Can't add Customers", err.message);
-  }
-}
-
-//displayCustomers();
-
 router.get("/", async (req, res) => {
   const result = await Customers.find()
     .sort({ customerName: 1 })
@@ -94,7 +63,7 @@ router.put("/:id", auth, async (req, res) => {
   return res.send(customer);
 });
 
-router.delete("/:id", [auth,admin], async (req, res) => {
+router.delete("/:id", [auth, admin], async (req, res) => {
   const customer = await Customers.deleteOne({ _id: req.params.id });
 
   if (!customer)
